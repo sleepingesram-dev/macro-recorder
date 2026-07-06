@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { AnimatePresence, motion } from 'framer-motion';
 import { db, logEntry } from '../db/db';
+import { KCAL_PER_G } from '../lib/targets';
 import { searchFoods } from '../api/foods';
 import { useSettings } from '../state/SettingsContext';
 import { SectionTitle, Sheet, Field, Segmented, fmt, Spinner, EmptyState } from '../components/ui';
@@ -46,14 +47,8 @@ export default function LogFood() {
     () => db.foods.orderBy('useCount').reverse().filter((f) => (f.useCount || 0) > 1).limit(8).toArray(),
     []
   );
-  const myFoods = useLiveQuery(
-    () => db.foods.filter((f) => f.source === 'custom').limit(20).toArray(),
-    []
-  );
-  const recipes = useLiveQuery(
-    () => db.foods.filter((f) => f.source === 'recipe').limit(20).toArray(),
-    []
-  );
+  const myFoods = useLiveQuery(() => db.foods.where('source').equals('custom').limit(20).toArray(), []);
+  const recipes = useLiveQuery(() => db.foods.where('source').equals('recipe').limit(20).toArray(), []);
 
   // debounced API search — fires 300 ms after typing stops
   useEffect(() => {
@@ -264,9 +259,9 @@ function FoodSection({ title, foods, onPick, empty }) {
 
 function FoodRow({ food, onPick }) {
   const p = food.per100 || {};
-  const pk = (p.protein || 0) * 4;
-  const ck = (p.carbs || 0) * 4;
-  const fk = (p.fat || 0) * 9;
+  const pk = (p.protein || 0) * KCAL_PER_G.protein;
+  const ck = (p.carbs || 0) * KCAL_PER_G.carbs;
+  const fk = (p.fat || 0) * KCAL_PER_G.fat;
   const tot = pk + ck + fk || 1;
   return (
     <button className="w-full px-3.5 py-2.5 text-left hover:bg-surface-2/60 transition-colors" onClick={onPick}>

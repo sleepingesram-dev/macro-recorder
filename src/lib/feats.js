@@ -64,6 +64,22 @@ export function evaluateFeats(stats) {
   return FEATS.map((f) => ({ ...f, earned: !!f.check(stats) }));
 }
 
+// Feats are monotonic: once earned, always earned — persisted so windowed
+// stat queries can't "un-earn" an old achievement.
+const EARNED_KEY = 'chronicle.featsEarned';
+
+export function loadEarnedFeats() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(EARNED_KEY) || '[]'));
+  } catch {
+    return new Set();
+  }
+}
+
+export function persistEarnedFeats(keys) {
+  localStorage.setItem(EARNED_KEY, JSON.stringify([...keys]));
+}
+
 // XP & level — a gentle curve: level n needs 25·n² XP.
 export function xpAndLevel(stats) {
   const xp =
@@ -72,7 +88,8 @@ export function xpAndLevel(stats) {
     stats.weighInCount * 5 +
     stats.featsEarned * 50;
   const level = Math.max(1, Math.floor(Math.sqrt(xp / 25)));
-  const currentFloor = 25 * level * level;
+  const currentFloor = level === 1 ? 0 : 25 * level * level; // level 1 starts at 0 XP
   const nextAt = 25 * (level + 1) * (level + 1);
-  return { xp, level, progress: Math.min(1, (xp - currentFloor) / (nextAt - currentFloor)), nextAt };
+  const progress = Math.max(0, Math.min(1, (xp - currentFloor) / (nextAt - currentFloor)));
+  return { xp, level, progress, nextAt };
 }

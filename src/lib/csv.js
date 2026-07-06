@@ -39,6 +39,9 @@ export const ENTRY_COLUMNS = [
   { label: 'sodium_mg', get: (e) => round1(e.sodium) },
   { label: 'potassium_mg', get: (e) => round1(e.potassium) },
   { label: 'cholesterol_mg', get: (e) => round1(e.cholesterol) },
+  { label: 'vitamin_c_mg', get: (e) => round1(e.vitaminC) },
+  { label: 'calcium_mg', get: (e) => round1(e.calcium) },
+  { label: 'iron_mg', get: (e) => round1(e.iron) },
 ];
 
 export const WEIGHT_COLUMNS = [

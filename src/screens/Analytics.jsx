@@ -6,8 +6,8 @@ import { useCodex, useCharacter } from '../state/useChronicle';
 import { SectionTitle, Segmented, fmt, EmptyState } from '../components/ui';
 import { HistoryLine, MacroPie, AvgVsTargetBars, MealDistribution, CHART, MACRO_COLORS } from '../components/charts';
 import { estimatedGL } from '../lib/glycemic';
-import { todayStr, addDays, lastNDays, fmtShort } from '../lib/dates';
-import { kgToLb } from '../lib/units';
+import { todayStr, addDays, dateRange, fmtShort } from '../lib/dates';
+import { kgToLb, fmtWeight, weightValue } from '../lib/units';
 
 const RANGES = [
   { value: 7, label: 'Week' },
@@ -20,7 +20,7 @@ export default function Analytics() {
   const { settings } = useSettings();
   const [range, setRange] = useState(7);
   const info = useCodex();
-  const character = useCharacter();
+  const character = useCharacter(info);
 
   const start = range === 0 ? '0000-01-01' : addDays(todayStr(), -(range - 1));
   const entries = useLiveQuery(
@@ -194,20 +194,24 @@ function computeRangeStats(entries, settings) {
   const avg = {};
   for (const n of NUTRIENTS) avg[n.key] = totals[n.key] / daysLogged;
 
+  // chart spans the full date range from first logged day to today, so sparse
+  // logging and 'All' history are never silently truncated
   const dates = [...byDate.keys()].sort();
   const dailySeries =
     dates.length > 0
-      ? lastNDays(Math.max(2, Math.min(90, dates.length + 2)))
-          .filter((d) => d >= dates[0])
-          .map((d) => ({ date: d, kcal: byDate.get(d)?.kcal ?? null }))
+      ? dateRange(dates[0], todayStr()).map((d) => ({ date: d, kcal: byDate.get(d)?.kcal ?? null }))
       : [];
 
+  // include meal keys no longer in settings ("retired" categories) so the
+  // distribution always sums to 100% of logged calories
   const totalMealKcal = [...byMeal.values()].reduce((a, b) => a + b, 0) || 1;
-  const mealDist = settings.meals
-    .map((m) => ({
-      name: m.label,
-      kcal: (byMeal.get(m.key) || 0) / daysLogged,
-      pct: ((byMeal.get(m.key) || 0) / totalMealKcal) * 100,
+  const knownKeys = settings.meals.map((m) => m.key);
+  const orderedKeys = [...knownKeys, ...[...byMeal.keys()].filter((k) => !knownKeys.includes(k))];
+  const mealDist = orderedKeys
+    .map((key) => ({
+      name: settings.meals.find((m) => m.key === key)?.label || `${key} (retired)`,
+      kcal: (byMeal.get(key) || 0) / daysLogged,
+      pct: ((byMeal.get(key) || 0) / totalMealKcal) * 100,
     }))
     .filter((m) => m.kcal > 0);
 
@@ -246,16 +250,13 @@ function WeeklyLedger({ info, settings }) {
       <div className="grid grid-cols-2 gap-y-3 mt-2">
         <Ledger k="Avg calories" v={avgKcal != null ? `${fmt.kcal(avgKcal)} kcal` : '—'} />
         <Ledger k="Days logged" v={`${byDate.size}/7`} />
-        <Ledger
-          k="Avg weight"
-          v={avgWeight != null ? `${(unit === 'lb' ? kgToLb(avgWeight) : avgWeight).toFixed(1)} ${unit}` : '—'}
-        />
+        <Ledger k="Avg weight" v={fmtWeight(avgWeight, unit)} />
         <Ledger
           k="Trend"
           v={
             rate == null
               ? '—'
-              : `${rate < 0 ? '↓' : rate > 0 ? '↑' : '→'} ${Math.abs(unit === 'lb' ? kgToLb(rate) : rate).toFixed(2)} ${unit}/wk`
+              : `${rate < 0 ? '↓' : rate > 0 ? '↑' : '→'} ${Math.abs(weightValue(rate, unit)).toFixed(2)} ${unit}/wk`
           }
         />
       </div>

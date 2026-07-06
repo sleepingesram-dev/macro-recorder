@@ -6,7 +6,15 @@ import { weightTrendSeries, trendRateKgPerWeek } from '../lib/trend';
 import { adaptiveTdee, coachingCheck } from '../lib/adaptive';
 import { formulaTdee, ageFromBirthYear } from '../lib/tdee';
 import { resolveTargets } from '../lib/targets';
-import { computeStreaks, backwardStreak, evaluateFeats, xpAndLevel } from '../lib/feats';
+import {
+  computeStreaks,
+  backwardStreak,
+  evaluateFeats,
+  xpAndLevel,
+  loadEarnedFeats,
+  persistEarnedFeats,
+} from '../lib/feats';
+import { effectiveRateKgPerWeek } from '../lib/targets';
 import { estimatedGL } from '../lib/glycemic';
 import { todayStr, addDays, diffDays } from '../lib/dates';
 
@@ -79,7 +87,7 @@ export function useCodex(dateStr = todayStr()) {
       weightKg: currentWeightKg,
       dateStr,
     });
-    const goalRate = settings.goal.objective === 'maintain' ? 0 : settings.goal.rateKgPerWeek;
+    const goalRate = effectiveRateKgPerWeek(settings.goal);
     const coaching = coachingCheck({
       actualRateKgPerWeek: actualRate,
       goalRateKgPerWeek: goalRate,
@@ -102,35 +110,44 @@ export function useCodex(dateStr = todayStr()) {
 }
 
 // ── Feats, XP, streaks — the character sheet ──
-export function useCharacter() {
+// Takes the caller's codexInfo so screens don't mount a second full codex
+// subscription. Uses indexed/count queries plus a bounded recent window —
+// never a full entries table load. Streak-feats only look back from today,
+// and earned feats are persisted (monotonic), so the window is safe.
+const STREAK_WINDOW_DAYS = 90;
+
+export function useCharacter(codexInfo) {
   const { settings } = useSettings();
-  const entries = useLiveQuery(() => db.entries.toArray(), []);
-  const weights = useLiveQuery(() => db.weights.count(), []);
-  const recipes = useLiveQuery(() => db.recipes.count(), []);
-  const customFoods = useLiveQuery(
-    () => db.foods.filter((f) => f.source === 'custom').count(),
+  const windowStart = addDays(todayStr(), -(STREAK_WINDOW_DAYS - 1));
+  const loggedDates = useLiveQuery(() => db.entries.orderBy('date').uniqueKeys(), []);
+  const totalEntries = useLiveQuery(() => db.entries.count(), []);
+  const recentEntries = useLiveQuery(
+    () => db.entries.where('date').aboveOrEqual(windowStart).toArray(),
     []
   );
-  const waterRows = useLiveQuery(() => db.water.toArray(), []);
-  const codexInfo = useCodex();
+  const weights = useLiveQuery(() => db.weights.count(), []);
+  const recipes = useLiveQuery(() => db.recipes.count(), []);
+  const customFoods = useLiveQuery(() => db.foods.where('source').equals('custom').count(), []);
+  const waterRows = useLiveQuery(
+    () => db.water.where('date').aboveOrEqual(windowStart).toArray(),
+    []
+  );
 
   return useMemo(() => {
-    const loading = entries === undefined;
-    const all = entries || [];
-    const dates = [...new Set(all.map((e) => e.date))];
+    const loading = loggedDates === undefined || recentEntries === undefined;
+    const dates = loggedDates || [];
     const streaks = computeStreaks(dates);
 
-    // per-day macro sums for protein/balance streaks
+    // per-day macro sums (recent window) for protein/balance streaks
     const byDate = new Map();
-    for (const e of all) {
-      const t = byDate.get(e.date) || { protein: 0, carbs: 0, fat: 0, kcal: 0 };
+    for (const e of recentEntries || []) {
+      const t = byDate.get(e.date) || { protein: 0, carbs: 0, fat: 0 };
       t.protein += e.protein || 0;
       t.carbs += e.carbs || 0;
       t.fat += e.fat || 0;
-      t.kcal += e.kcal || 0;
       byDate.set(e.date, t);
     }
-    const m = codexInfo.targets?.macros;
+    const m = codexInfo?.targets?.macros;
     const proteinDays = m
       ? [...byDate.entries()].filter(([, t]) => t.protein >= m.protein * 0.98).map(([d]) => d)
       : [];
@@ -145,24 +162,31 @@ export function useCharacter() {
       .map((w) => w.date);
 
     const stats = {
-      totalEntries: all.length,
+      totalEntries: totalEntries || 0,
       daysLogged: dates.length,
       bestStreak: streaks.best,
       currentStreak: streaks.current,
-      scannedCount: all.filter((e) => e.viaScan).length,
+      scannedCount: (recentEntries || []).filter((e) => e.viaScan).length,
       recipeCount: recipes || 0,
       customFoodCount: customFoods || 0,
       weighInCount: weights || 0,
       proteinStreak: backwardStreak(proteinDays),
       balanceStreak: backwardStreak(balanceDays),
       waterStreak: backwardStreak(waterDays),
-      codexHighConfidence: codexInfo.codex?.confidence === 'high',
+      codexHighConfidence: codexInfo?.codex?.confidence === 'high',
     };
-    const feats = evaluateFeats(stats);
-    stats.featsEarned = feats.filter((f) => f.earned).length;
+    // merge with the persisted ledger: a feat once earned stays earned
+    const earnedBefore = loadEarnedFeats();
+    const feats = evaluateFeats(stats).map((f) => ({
+      ...f,
+      earned: f.earned || earnedBefore.has(f.key),
+    }));
+    const earnedNow = feats.filter((f) => f.earned).map((f) => f.key);
+    if (!loading && earnedNow.length > earnedBefore.size) persistEarnedFeats(earnedNow);
+    stats.featsEarned = earnedNow.length;
     const { xp, level, progress, nextAt } = xpAndLevel(stats);
     const dayNumber = Math.max(1, diffDays(settings.profile.startDate, todayStr()) + 1);
 
     return { loading, stats, feats, xp, level, levelProgress: progress, nextLevelAt: nextAt, dayNumber };
-  }, [entries, weights, recipes, customFoods, waterRows, codexInfo, settings]);
+  }, [loggedDates, totalEntries, recentEntries, weights, recipes, customFoods, waterRows, codexInfo, settings]);
 }

@@ -1,5 +1,9 @@
 import Dexie from 'dexie';
 
+// localStorage key for settings — shared with SettingsContext (kept here so the
+// data layer has no dependency on React state modules).
+export const SETTINGS_KEY = 'chronicle.settings';
+
 // ── The Chronicle's local vault. Everything lives here, on-device. ──
 //
 // entries      — every logged food row (denormalized macros, so history survives food edits)
@@ -14,7 +18,7 @@ export const db = new Dexie('chronicle');
 
 db.version(1).stores({
   entries: '++id, date, meal, foodKey, ts',
-  foods: '++id, &key, name, barcode, lastUsed, useCount',
+  foods: '++id, &key, name, source, barcode, lastUsed, useCount',
   recipes: '++id, name',
   weights: '&date',
   measurements: '++id, date, type',
@@ -38,8 +42,6 @@ export const NUTRIENTS = [
   { key: 'calcium', label: 'Calcium', unit: 'mg' },
   { key: 'iron', label: 'Iron', unit: 'mg' },
 ];
-
-export const MACRO_KEYS = ['protein', 'carbs', 'fat'];
 
 export function emptyNutrients() {
   return Object.fromEntries(NUTRIENTS.map((n) => [n.key, 0]));
@@ -76,10 +78,6 @@ export async function logEntry(entry) {
 
 export async function entriesForDate(date) {
   return db.entries.where('date').equals(date).sortBy('ts');
-}
-
-export async function entriesForRange(start, end) {
-  return db.entries.where('date').between(start, end, true, true).toArray();
 }
 
 // Upsert a food into the personal codex, keyed by source identity.
@@ -129,7 +127,7 @@ export async function exportVault() {
     app: 'the-chronicle',
     schema: 1,
     exportedAt: new Date().toISOString(),
-    settings: JSON.parse(localStorage.getItem('chronicle.settings') || 'null'),
+    settings: JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null'),
     entries,
     foods,
     recipes,
@@ -140,8 +138,15 @@ export async function exportVault() {
   };
 }
 
-export async function importVault(data, { replace = false } = {}) {
+export async function importVault(data, { replace = true } = {}) {
   if (!data || data.app !== 'the-chronicle') throw new Error('Not a Chronicle backup file.');
+  // Blob conversion uses fetch, which must happen BEFORE the transaction —
+  // awaiting a non-Dexie promise inside it would auto-commit the transaction.
+  const photoRows = [];
+  for (const p of data.photos || []) {
+    const { id, blob, ...rest } = p;
+    photoRows.push({ ...rest, blob: await dataUrlToBlob(blob) });
+  }
   await db.transaction('rw', db.tables, async () => {
     if (replace) await Promise.all(db.tables.map((t) => t.clear()));
     const strip = (rows) => (rows || []).map(({ id, ...r }) => r);
@@ -152,15 +157,17 @@ export async function importVault(data, { replace = false } = {}) {
       if (!existing) await db.foods.add(rest);
     }
     await db.recipes.bulkAdd(strip(data.recipes));
-    for (const w of data.weights || []) await db.weights.put({ date: w.date, kg: w.kg });
-    await db.measurements.bulkAdd(strip(data.measurements));
-    for (const w of data.water || []) await db.water.put({ date: w.date, ml: w.ml });
-    for (const p of data.photos || []) {
-      const { id, blob, ...rest } = p;
-      await db.photos.add({ ...rest, blob: await dataUrlToBlob(blob) });
+    for (const w of data.weights || []) {
+      // merge mode: local weigh-ins win over the backup's for the same date
+      if (replace || !(await db.weights.get(w.date))) await db.weights.put({ date: w.date, kg: w.kg });
     }
+    await db.measurements.bulkAdd(strip(data.measurements));
+    for (const w of data.water || []) {
+      if (replace || !(await db.water.get(w.date))) await db.water.put({ date: w.date, ml: w.ml });
+    }
+    await db.photos.bulkAdd(photoRows);
   });
-  if (data.settings) localStorage.setItem('chronicle.settings', JSON.stringify(data.settings));
+  if (data.settings) localStorage.setItem(SETTINGS_KEY, JSON.stringify(data.settings));
 }
 
 // Console access for power users (and tests): window.chronicle.db is the live vault.

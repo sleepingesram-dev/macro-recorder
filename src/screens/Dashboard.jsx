@@ -9,6 +9,7 @@ import { MACRO_COLORS } from '../components/charts';
 import MealCard from '../components/MealCard';
 import ServingSheet from '../components/ServingSheet';
 import { db, addWater, entriesForDate, copyEntriesToDate } from '../db/db';
+import { isCycledTrainingDay } from '../lib/targets';
 import { todayStr, addDays, fmtLong, isToday } from '../lib/dates';
 import { fmtFluid, weightToKg, weightValue } from '../lib/units';
 
@@ -20,7 +21,7 @@ export default function Dashboard() {
 
   const log = useDayLog(date);
   const codexInfo = useCodex(date);
-  const character = useCharacter();
+  const character = useCharacter(codexInfo);
   const [editing, setEditing] = useState(null);
   const [weighOpen, setWeighOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -30,9 +31,13 @@ export default function Dashboard() {
   const macros = t?.macros || { protein: 150, carbs: 200, fat: 70 };
   const remaining = kcalTarget - log.totals.kcal;
   const todayWeight = useTodayWeight(date);
-  const isTrainingDay =
-    settings.cycling.enabled &&
-    settings.cycling.trainingDays.includes(new Date(date + 'T12:00').getDay());
+  const isTrainingDay = isCycledTrainingDay(settings.cycling, date);
+
+  // meals that were removed from settings but still hold entries on this day —
+  // they stay visible and editable ("entries keep their original category")
+  const orphanMeals = Object.keys(log.byMeal)
+    .filter((k) => (log.byMeal[k] || []).length > 0 && !settings.meals.some((m) => m.key === k))
+    .map((k) => ({ key: k, label: `${k} (retired)` }));
 
   async function copyPreviousDay() {
     const prev = await entriesForDate(addDays(date, -1));
@@ -142,19 +147,21 @@ export default function Dashboard() {
       </div>
 
       {/* ── Morning weigh-in nudge ── */}
-      {todayWeight == null ? (
-        <button className="card w-full p-3.5 flex items-center justify-between hover:border-rune-2 transition-colors" onClick={() => setWeighOpen(true)}>
-          <span className="text-sm text-ink-2">⚖ Record {isToday(date) ? "today's" : 'this day’s'} weigh-in</span>
-          <span className="text-gold-dim text-xs">→</span>
-        </button>
-      ) : (
-        <button className="card w-full p-3.5 flex items-center justify-between hover:border-rune-2 transition-colors" onClick={() => setWeighOpen(true)}>
-          <span className="text-sm text-ink-2">⚖ Weigh-in</span>
-          <span className="font-mono text-sm text-ink">
-            {weightValue(todayWeight, settings.units.weight).toFixed(1)} {settings.units.weight}
-          </span>
-        </button>
-      )}
+      <button className="card w-full p-3.5 flex items-center justify-between hover:border-rune-2 transition-colors" onClick={() => setWeighOpen(true)}>
+        {todayWeight == null ? (
+          <>
+            <span className="text-sm text-ink-2">⚖ Record {isToday(date) ? "today's" : 'this day’s'} weigh-in</span>
+            <span className="text-gold-dim text-xs">→</span>
+          </>
+        ) : (
+          <>
+            <span className="text-sm text-ink-2">⚖ Weigh-in</span>
+            <span className="font-mono text-sm text-ink">
+              {weightValue(todayWeight, settings.units.weight).toFixed(1)} {settings.units.weight}
+            </span>
+          </>
+        )}
+      </button>
 
       {/* ── Meal ledger ── */}
       <SectionTitle
@@ -167,7 +174,7 @@ export default function Dashboard() {
         The Day's Ledger
       </SectionTitle>
       <div className="space-y-3">
-        {settings.meals.map((m) => (
+        {[...settings.meals, ...orphanMeals].map((m) => (
           <MealCard key={m.key} meal={m} entries={log.byMeal[m.key] || []} date={date} onEdit={setEditing} />
         ))}
       </div>

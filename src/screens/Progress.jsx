@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/db';
 import { useSettings } from '../state/SettingsContext';
 import { useCodex } from '../state/useChronicle';
 import { SectionTitle, Sheet, Field, Segmented, fmt, EmptyState } from '../components/ui';
 import { WeightChart, HistoryLine, CHART } from '../components/charts';
-import { kgToLb, weightValue, weightToKg, fmtLength, inToCm, cmToIn, fmtWeight } from '../lib/units';
+import { weightValue, inToCm, cmToIn, fmtWeight } from '../lib/units';
 import { navyBodyFat, deurenbergBodyFat, MEASUREMENT_TYPES } from '../lib/bodyfat';
 import { ageFromBirthYear } from '../lib/tdee';
 import { todayStr, fmtShort } from '../lib/dates';
@@ -16,10 +16,10 @@ export default function Progress() {
   const [showCodexMath, setShowCodexMath] = useState(false);
   const [measureOpen, setMeasureOpen] = useState(false);
   const unit = settings.units.weight;
-  const toDisplay = unit === 'lb' ? kgToLb : (v) => v;
+  const toDisplay = (v) => weightValue(v, unit);
 
   const rate = info.actualRateKgPerWeek;
-  const rateDisp = rate == null ? null : unit === 'lb' ? kgToLb(rate) : rate;
+  const rateDisp = rate == null ? null : weightValue(rate, unit);
 
   return (
     <div className="space-y-4 pb-4">
@@ -168,7 +168,7 @@ function RationCard({ info, unit }) {
   const c = info.coaching;
   const t = info.targets;
   if (!t?.calories) return null;
-  const goalRateDisp = unit === 'lb' ? kgToLb(info.goalRateKgPerWeek) : info.goalRateKgPerWeek;
+  const goalRateDisp = weightValue(info.goalRateKgPerWeek, unit);
   return (
     <div className="card p-4">
       <div className="flex items-start justify-between">
@@ -363,10 +363,16 @@ function BodyFatCard({ info }) {
 function PhotoGrid() {
   const photos = useLiveQuery(() => db.photos.orderBy('date').reverse().toArray(), []);
   const [viewing, setViewing] = useState(null);
-  const urls = useMemo(() => {
+  // object URLs pin their blobs until revoked — build in an effect and revoke
+  // the previous set whenever photos change or the grid unmounts
+  const [urls, setUrls] = useState(() => new Map());
+  useEffect(() => {
     const m = new Map();
     for (const p of photos || []) m.set(p.id, URL.createObjectURL(p.blob));
-    return m;
+    setUrls(m);
+    return () => {
+      for (const u of m.values()) URL.revokeObjectURL(u);
+    };
   }, [photos]);
 
   async function addPhoto(e) {
