@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/macro-recorder/sw.js', { scope: '/macro-recorder/' })})}
