@@ -24,13 +24,22 @@ export default function ServingSheet({ open, onClose, food, entry, date = todayS
     ];
   }, [food, entry]);
 
-  const [unitKey, setUnitKey] = useState(() =>
-    unitOptions[0]?.key === 'serv:0' ? 'serv:0' : 'g'
-  );
-  const [qty, setQty] = useState(() => {
-    if (entry?.grams && unitOptions[0]?.key !== 'serv:0') return String(Math.round(entry.grams));
-    return unitOptions[0]?.key === 'serv:0' ? '1' : '100';
-  });
+  // Editing must open showing the amount that was actually logged: a clean
+  // multiple of the food's serving shows as servings, anything else as grams.
+  const initial = (() => {
+    const serv = unitOptions[0]?.key === 'serv:0' ? unitOptions[0] : null;
+    if (entry?.grams > 0) {
+      if (serv) {
+        const ratio = entry.grams / serv.grams;
+        const rounded = Math.round(ratio * 4) / 4; // quarter-serving granularity
+        if (Math.abs(ratio - rounded) / ratio < 0.01) return { unit: 'serv:0', qty: String(rounded) };
+      }
+      return { unit: 'g', qty: String(Math.round(entry.grams)) };
+    }
+    return serv ? { unit: 'serv:0', qty: '1' } : { unit: 'g', qty: '100' };
+  })();
+  const [unitKey, setUnitKey] = useState(initial.unit);
+  const [qty, setQty] = useState(initial.qty);
   const [mealKey, setMealKey] = useState(meal || entry?.meal || settings.meals[0].key);
   const [quickVals, setQuickVals] = useState(() => ({
     kcal: entry?.kcal ?? '',

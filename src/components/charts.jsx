@@ -17,6 +17,7 @@ import {
   Legend,
 } from 'recharts';
 import { fmtShort } from '../lib/dates';
+import { KCAL_PER_G } from '../lib/targets';
 
 // Validated dark-surface chart palette (see docs/DESIGN.md — CVD-safe, ≥3:1)
 export const CHART = {
@@ -134,9 +135,9 @@ export function HistoryLine({ data, dataKey, color = CHART.gold, height = 200, u
 // ── Macro pie (protein / carbs / fat by calories) ──
 export function MacroPie({ protein = 0, carbs = 0, fat = 0, size = 170 }) {
   const data = [
-    { name: 'Protein', value: Math.max(0, protein * 4), color: MACRO_COLORS.protein },
-    { name: 'Carbs', value: Math.max(0, carbs * 4), color: MACRO_COLORS.carbs },
-    { name: 'Fat', value: Math.max(0, fat * 9), color: MACRO_COLORS.fat },
+    { name: 'Protein', value: Math.max(0, protein * KCAL_PER_G.protein), color: MACRO_COLORS.protein },
+    { name: 'Carbs', value: Math.max(0, carbs * KCAL_PER_G.carbs), color: MACRO_COLORS.carbs },
+    { name: 'Fat', value: Math.max(0, fat * KCAL_PER_G.fat), color: MACRO_COLORS.fat },
   ];
   const total = data.reduce((a, b) => a + b.value, 0);
   if (total <= 0)
@@ -174,7 +175,7 @@ export function MacroPie({ protein = 0, carbs = 0, fat = 0, size = 170 }) {
 }
 
 // ── Averages vs targets bars ──
-export function AvgVsTargetBars({ rows, height = 200 }) {
+export function AvgVsTargetBars({ rows }) {
   // rows: [{name, avg, target, color}]
   return (
     <div className="space-y-3">

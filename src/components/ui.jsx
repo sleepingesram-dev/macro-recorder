@@ -163,8 +163,5 @@ export function Spinner({ label = 'Consulting the codex…' }) {
 export const fmt = {
   int: (v) => (v == null || isNaN(v) ? '—' : Math.round(v).toLocaleString()),
   g: (v) => (v == null || isNaN(v) ? '—' : `${Math.round(v)}g`),
-  g1: (v) => (v == null || isNaN(v) ? '—' : `${(Math.round(v * 10) / 10).toLocaleString()}g`),
   kcal: (v) => (v == null || isNaN(v) ? '—' : `${Math.round(v).toLocaleString()}`),
-  pct: (v) => (v == null || isNaN(v) ? '—' : `${Math.round(v * 100)}%`),
-  signed: (v) => (v == null || isNaN(v) ? '—' : `${v > 0 ? '+' : ''}${Math.round(v).toLocaleString()}`),
 };

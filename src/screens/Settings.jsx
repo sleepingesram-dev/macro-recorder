@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react';
 import { useSettings, DEFAULT_MEALS } from '../state/SettingsContext';
-import { db, exportVault, importVault } from '../db/db';
+import { db, exportVault, importVault, SETTINGS_KEY } from '../db/db';
 import { SectionTitle, Field, Segmented, fmt } from '../components/ui';
 import { FORMULAS, ACTIVITY_LEVELS } from '../lib/tdee';
 import { OBJECTIVES } from '../lib/targets';
 import { toCsv, downloadFile, ENTRY_COLUMNS, WEIGHT_COLUMNS } from '../lib/csv';
-import { weightValue, weightToKg, cmToIn, inToCm } from '../lib/units';
+import { weightValue, weightToKg, cmToIn, inToCm, mlToOz, ozToMl } from '../lib/units';
 import { useCodex } from '../state/useChronicle';
 import { todayStr } from '../lib/dates';
 
@@ -54,7 +54,12 @@ export default function Settings() {
     if (!file) return;
     try {
       const data = JSON.parse(await file.text());
-      await importVault(data);
+      // Restore replaces the vault with the backup's snapshot. Merge (Cancel)
+      // keeps local rows where they exist but may duplicate food entries.
+      const replace = window.confirm(
+        'Restore this backup?\n\nOK — replace everything on this device with the backup.\nCancel — merge into existing data (repeated imports can duplicate food entries).'
+      );
+      await importVault(data, { replace });
       flash('Backup restored. Reloading…');
       setTimeout(() => window.location.reload(), 900);
     } catch (err) {
@@ -65,7 +70,7 @@ export default function Settings() {
 
   async function eraseAll() {
     await Promise.all(db.tables.map((t) => t.clear()));
-    localStorage.removeItem('chronicle.settings');
+    localStorage.removeItem(SETTINGS_KEY);
     window.location.reload();
   }
 
@@ -335,10 +340,10 @@ export default function Settings() {
           <input
             className="input"
             type="number"
-            value={u.fluid === 'oz' ? Math.round(settings.waterTargetMl / 29.5735) : settings.waterTargetMl}
+            value={u.fluid === 'oz' ? Math.round(mlToOz(settings.waterTargetMl)) : settings.waterTargetMl}
             onChange={(e) => {
               const v = parseFloat(e.target.value) || 0;
-              update({ waterTargetMl: u.fluid === 'oz' ? v * 29.5735 : v });
+              update({ waterTargetMl: u.fluid === 'oz' ? ozToMl(v) : v });
             }}
           />
         </Field>

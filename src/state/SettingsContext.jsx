@@ -1,7 +1,6 @@
 import { createContext, useContext, useMemo, useState, useCallback } from 'react';
 import { todayStr } from '../lib/dates';
-
-const KEY = 'chronicle.settings';
+import { SETTINGS_KEY as KEY } from '../db/db';
 
 export const DEFAULT_MEALS = [
   { key: 'breakfast', label: 'Breakfast' },
@@ -40,20 +39,26 @@ export const DEFAULT_SETTINGS = {
   meals: DEFAULT_MEALS,
 };
 
+// Recursive merge: plain objects merge key-by-key so new defaults surface after
+// app updates; arrays and scalars are replaced by the stored value.
+function deepMerge(defaults, stored) {
+  if (!isPlainObject(defaults) || !isPlainObject(stored)) {
+    return stored === undefined ? defaults : stored;
+  }
+  const out = { ...defaults };
+  for (const k of Object.keys(stored)) out[k] = deepMerge(defaults[k], stored[k]);
+  return out;
+}
+
+function isPlainObject(v) {
+  return v != null && typeof v === 'object' && !Array.isArray(v);
+}
+
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return DEFAULT_SETTINGS;
-    const parsed = JSON.parse(raw);
-    // deep-merge one level so new default fields appear after app updates
-    const merged = { ...DEFAULT_SETTINGS, ...parsed };
-    for (const k of ['profile', 'goal', 'units', 'cycling', 'notifications']) {
-      merged[k] = { ...DEFAULT_SETTINGS[k], ...(parsed[k] || {}) };
-    }
-    merged.goal.percent = { ...DEFAULT_SETTINGS.goal.percent, ...(parsed.goal?.percent || {}) };
-    merged.goal.grams = { ...DEFAULT_SETTINGS.goal.grams, ...(parsed.goal?.grams || {}) };
-    merged.goal.perLb = { ...DEFAULT_SETTINGS.goal.perLb, ...(parsed.goal?.perLb || {}) };
-    return merged;
+    return deepMerge(DEFAULT_SETTINGS, JSON.parse(raw));
   } catch {
     return DEFAULT_SETTINGS;
   }
