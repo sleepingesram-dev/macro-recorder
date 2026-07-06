@@ -49,7 +49,20 @@ account, no fees. Your data is yours — export it any time.
 - One-click JSON backup (restorable) and CSV export of food log + weights
 - Installable **PWA** — works offline after first load
 
-## Running it
+## Use it on the web
+
+The app deploys automatically to GitHub Pages on every push to `main`:
+
+**https://sleepingesram-dev.github.io/macro-recorder/**
+
+**Install it** (it's a PWA — installs like a native app, works offline after first load):
+- **Android / Chrome:** open the URL → browser menu (⋮) → *Add to Home screen* / *Install app*
+- **iPhone / Safari:** open the URL → Share button → *Add to Home Screen*
+- **Desktop Chrome/Edge:** click the install icon in the address bar
+
+Being on HTTPS also means camera barcode scanning works from your phone.
+
+## Running it locally
 
 ```bash
 npm install
