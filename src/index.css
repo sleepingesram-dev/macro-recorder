@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  @apply bg-abyss text-ink font-body antialiased;
+  overscroll-behavior-y: none;
+}
+
+::selection {
+  background: rgba(201, 168, 76, 0.3);
+}
+
+/* recessive scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2535 transparent;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #2a2535;
+  border-radius: 3px;
+}
+
+/* numeric inputs without spinners — data is typed, not nudged */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+@layer components {
+  .card {
+    @apply bg-surface border border-rune rounded-xl shadow-card;
+  }
+  .input {
+    @apply bg-surface-2 border border-rune rounded-lg px-3 py-2 text-ink font-mono text-sm
+      placeholder:text-ink-3 focus:outline-none focus:border-gold-dim focus:ring-1 focus:ring-gold-dim/50 w-full;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium
+      transition-colors select-none disabled:opacity-40 disabled:pointer-events-none;
+  }
+  .btn-gold {
+    @apply btn bg-gold/15 text-gold-bright border border-gold/40 hover:bg-gold/25 active:bg-gold/30;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-ink-2 border border-rune hover:border-rune-2 hover:text-ink;
+  }
+  .btn-danger {
+    @apply btn bg-blood/15 text-red-300 border border-blood/40 hover:bg-blood/25;
+  }
+  .label {
+    @apply block text-[11px] uppercase tracking-[0.14em] text-ink-2 mb-1.5 font-medium;
+  }
+  .divider-rune {
+    @apply h-px bg-gradient-to-r from-transparent via-rune-2 to-transparent;
+  }
+}
+
+/* ornate corner accents for hero cards */
+.ornate {
+  position: relative;
+}
+.ornate::before,
+.ornate::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: rgba(201, 168, 76, 0.45);
+  border-style: solid;
+  pointer-events: none;
+}
+.ornate::before {
+  top: 6px;
+  left: 6px;
+  border-width: 1px 0 0 1px;
+  border-top-left-radius: 4px;
+}
+.ornate::after {
+  bottom: 6px;
+  right: 6px;
+  border-width: 0 1px 1px 0;
+  border-bottom-right-radius: 4px;
+}
