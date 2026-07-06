@@ -1,9 +1,8 @@
 name: Deploy to GitHub Pages
 
-# Publishes the built app to the gh-pages branch. GitHub serves that branch at
-# https://sleepingesram-dev.github.io/macro-recorder/ and enables Pages
-# automatically when the branch first appears — no Pages API calls, which the
-# default workflow token is not allowed to make on this repo.
+# Artifact-based Pages deployment (source: "GitHub Actions" in Settings → Pages).
+# The workflow token cannot CREATE the Pages site on this repo, so enablement is
+# a one-time manual step: Settings → Pages → Source → GitHub Actions.
 
 on:
   push:
@@ -11,14 +10,16 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +31,16 @@ jobs:
       - run: npm run build
         env:
           BASE_PATH: /macro-recorder/
-      - uses: peaceiris/actions-gh-pages@v4
+      - uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
