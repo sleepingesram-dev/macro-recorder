@@ -17,7 +17,7 @@ export function useLogReminder(enabled) {
       if (count === 0) {
         new Notification('The Chronicle awaits', {
           body: 'No provisions inscribed today. A blank page breaks the streak.',
-          icon: '/icons/icon-192.png',
+          icon: `${import.meta.env.BASE_URL}icons/icon-192.png`,
         });
         localStorage.setItem(KEY, todayStr());
       }
