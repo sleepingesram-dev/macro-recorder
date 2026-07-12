@@ -19,11 +19,11 @@ export default function MealCard({ meal, entries, date, onEdit }) {
           <span className={`text-gold-dim transition-transform text-[10px] ${open ? 'rotate-90' : ''}`}>
             ▶
           </span>
-          <span className="font-display text-[13px] tracking-[0.1em] uppercase text-ink">
+          <span className="font-display text-[9px] leading-relaxed uppercase text-ink">
             {meal.label}
           </span>
         </div>
-        <span className="font-mono text-xs text-ink-2">{fmt.kcal(kcal)} kcal</span>
+        <span className="font-mono text-base text-ink-2">{fmt.kcal(kcal)} kcal</span>
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -33,9 +33,9 @@ export default function MealCard({ meal, entries, date, onEdit }) {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.18 }}
           >
-            <div className="border-t border-rune">
+            <div className="border-t-2 border-rune">
               {entries.length === 0 && (
-                <p className="px-4 py-3 text-xs text-ink-3 italic">Nothing inscribed.</p>
+                <p className="px-4 py-3 text-xs text-ink-3 italic">Nothing logged.</p>
               )}
               {entries.map((e) => (
                 <button
@@ -49,7 +49,7 @@ export default function MealCard({ meal, entries, date, onEdit }) {
                       {e.name}
                       {e.viaScan && <span className="text-arcane-bright text-[10px] ml-1.5">◈</span>}
                     </p>
-                    <p className="text-[11px] text-ink-3 font-mono mt-0.5">
+                    <p className="text-sm text-ink-3 font-mono mt-0.5 leading-none">
                       {e.amountDesc || '—'}
                       {' · '}
                       <span style={{ color: MACRO_COLORS.protein }}>P {fmt.g(e.protein)}</span>{' '}
@@ -57,14 +57,14 @@ export default function MealCard({ meal, entries, date, onEdit }) {
                       <span style={{ color: MACRO_COLORS.fat }}>F {fmt.g(e.fat)}</span>
                     </p>
                   </div>
-                  <span className="font-mono text-xs text-ink-2 shrink-0">{fmt.kcal(e.kcal)}</span>
+                  <span className="font-mono text-base text-ink-2 shrink-0">{fmt.kcal(e.kcal)}</span>
                 </button>
               ))}
               <button
                 className="w-full px-4 py-2.5 text-left text-xs text-gold-dim hover:text-gold transition-colors flex items-center gap-1.5"
                 onClick={() => nav(`/log?meal=${meal.key}&date=${date}`)}
               >
-                <span className="text-sm leading-none">✦</span> Add to {meal.label}
+                <span className="text-sm leading-none">＋</span> Add to {meal.label}
               </button>
             </div>
           </motion.div>

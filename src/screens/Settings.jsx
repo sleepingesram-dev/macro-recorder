@@ -38,7 +38,7 @@ export default function Settings() {
       JSON.stringify(vault, null, 1),
       'application/json'
     );
-    flash('Backup scroll written.');
+    flash('Backup downloaded.');
   }
 
   async function doExportCsv() {
@@ -46,7 +46,7 @@ export default function Settings() {
     downloadFile(`chronicle-food-log-${todayStr()}.csv`, toCsv(entries, ENTRY_COLUMNS));
     const weights = await db.weights.orderBy('date').toArray();
     downloadFile(`chronicle-weights-${todayStr()}.csv`, toCsv(weights, WEIGHT_COLUMNS));
-    flash('CSV scrolls written.');
+    flash('CSVs downloaded.');
   }
 
   async function doImport(e) {
@@ -77,12 +77,12 @@ export default function Settings() {
   return (
     <div className="space-y-4 pb-4">
       <header className="pt-2">
-        <h1 className="font-display text-lg text-gold tracking-wide">The Armory</h1>
-        <p className="text-[11px] text-ink-3 mt-0.5">Profile, quest & provisions of the app itself</p>
+        <h1 className="font-display text-[13px] leading-relaxed pixel-title">SETTINGS</h1>
+        <p className="text-[11px] text-ink-3 mt-0.5">Profile, goals & app options</p>
       </header>
 
       {/* ── Profile ── */}
-      <SectionTitle>Adventurer</SectionTitle>
+      <SectionTitle>Profile</SectionTitle>
       <div className="card p-4 space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <Field label="Name">
@@ -144,8 +144,8 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* ── Quest ── */}
-      <SectionTitle>The Quest</SectionTitle>
+      {/* ── Goal ── */}
+      <SectionTitle>Goal</SectionTitle>
       <div className="card p-4 space-y-4">
         <Field label="Objective">
           <div className="grid grid-cols-2 gap-2">
@@ -237,14 +237,14 @@ export default function Settings() {
         )}
         {info.targets?.calories && (
           <p className="text-[11px] text-ink-3">
-            Current Daily Ration: <span className="font-mono text-gold-bright">{fmt.kcal(info.targets.calories)} kcal</span> · P{' '}
+            Current calorie target: <span className="font-mono text-gold-bright">{fmt.kcal(info.targets.calories)} kcal</span> · P{' '}
             {info.targets.macros?.protein}g · C {info.targets.macros?.carbs}g · F {info.targets.macros?.fat}g
           </p>
         )}
       </div>
 
-      {/* ── Codex settings ── */}
-      <SectionTitle>Metabolic Codex</SectionTitle>
+      {/* ── Metabolism ── */}
+      <SectionTitle>Metabolism</SectionTitle>
       <div className="card p-4 space-y-4">
         <Field label="Baseline formula" hint="Seeds the estimate; real logging takes over from there.">
           <Segmented
@@ -281,7 +281,7 @@ export default function Settings() {
         </label>
         {settings.cycling.enabled && (
           <>
-            <Field label="Training days" hint="Higher ration on these days; rest days absorb the difference. Weekly total unchanged.">
+            <Field label="Training days" hint="Higher calories on these days; rest days absorb the difference. Weekly total unchanged.">
               <div className="flex gap-1.5 flex-wrap">
                 {WEEKDAYS.map((d, i) => (
                   <button
@@ -361,7 +361,7 @@ export default function Settings() {
         <label className="flex items-center justify-between cursor-pointer">
           <div>
             <span className="text-sm text-ink">Logging reminder</span>
-            <p className="text-[10px] text-ink-3">Browser notification at supper if the day is blank (app must be open).</p>
+            <p className="text-[10px] text-ink-3">Evening browser notification if you haven't logged (app must be open).</p>
           </div>
           <input
             type="checkbox"
@@ -376,11 +376,11 @@ export default function Settings() {
       </div>
 
       {/* ── Data ── */}
-      <SectionTitle>The Vault</SectionTitle>
+      <SectionTitle>Your Data</SectionTitle>
       <div className="card p-4 space-y-3">
         <p className="text-[11px] text-ink-3">
-          Everything lives on this device. No account, no cloud, no subscription. Export regularly —
-          the vault is yours to keep.
+          Everything lives on this device — no account, no cloud, no subscription. Export a backup
+          now and then; it\u2019s your only copy.
         </p>
         <div className="grid grid-cols-2 gap-2">
           <button className="btn-gold" onClick={doExportJson}>
@@ -401,10 +401,10 @@ export default function Settings() {
         ) : (
           <div className="flex gap-2">
             <button className="btn-danger flex-1" onClick={eraseAll}>
-              Confirm: burn the chronicle
+              Yes, delete everything
             </button>
             <button className="btn-ghost" onClick={() => setConfirmErase(false)}>
-              Keep it
+              Cancel
             </button>
           </div>
         )}
@@ -412,7 +412,7 @@ export default function Settings() {
       </div>
 
       <p className="text-center text-[10px] text-ink-3 pb-2">
-        The Chronicle · local-first · v1.0 · fonts & code travel with the app
+        The Chronicle · local-first · v2.0 · no data leaves your device
       </p>
     </div>
   );

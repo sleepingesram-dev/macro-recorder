@@ -108,7 +108,7 @@ export default function ServingSheet({ open, onClose, food, entry, date = todayS
   const brand = food?.brand ?? entry?.brand ?? null;
 
   return (
-    <Sheet open={open} onClose={onClose} title={isEdit ? 'Amend Entry' : 'Log to Chronicle'}>
+    <Sheet open={open} onClose={onClose} title={isEdit ? 'Edit Entry' : 'Add Food'}>
       <div className="space-y-4">
         <div>
           <p className="text-ink font-medium leading-tight">{name}</p>
@@ -140,7 +140,7 @@ export default function ServingSheet({ open, onClose, food, entry, date = todayS
             </div>
             {scaled && (
               <div className="card bg-surface-2 p-3 grid grid-cols-4 text-center">
-                <Mini label="kcal" value={fmt.kcal(scaled.kcal)} color="#C9A84C" />
+                <Mini label="kcal" value={fmt.kcal(scaled.kcal)} color="#FFD76E" />
                 <Mini label="protein" value={fmt.g(scaled.protein)} color={MACRO_COLORS.protein} />
                 <Mini label="carbs" value={fmt.g(scaled.carbs)} color={MACRO_COLORS.carbs} />
                 <Mini label="fat" value={fmt.g(scaled.fat)} color={MACRO_COLORS.fat} />
@@ -176,7 +176,7 @@ export default function ServingSheet({ open, onClose, food, entry, date = todayS
 
         <div className="flex gap-2 pt-1">
           <button className="btn-gold flex-1" onClick={save}>
-            {isEdit ? 'Save Changes' : 'Inscribe Entry'}
+            {isEdit ? 'Save' : 'Add'}
           </button>
           {isEdit && (
             <button className="btn-danger" onClick={remove} title="Delete entry">
@@ -197,7 +197,7 @@ export default function ServingSheet({ open, onClose, food, entry, date = todayS
 function Mini({ label, value, color }) {
   return (
     <div>
-      <p className="font-mono text-sm" style={{ color }}>
+      <p className="font-mono text-xl leading-none" style={{ color }}>
         {value}
       </p>
       <p className="text-[10px] text-ink-3 uppercase tracking-wider mt-0.5">{label}</p>

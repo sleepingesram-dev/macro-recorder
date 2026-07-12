@@ -15,8 +15,8 @@ export function useLogReminder(enabled) {
       if (localStorage.getItem(KEY) === todayStr()) return;
       const count = await db.entries.where('date').equals(todayStr()).count();
       if (count === 0) {
-        new Notification('The Chronicle awaits', {
-          body: 'No provisions inscribed today. A blank page breaks the streak.',
+        new Notification("Don't lose your streak!", {
+          body: 'Nothing logged today. Quick add before bed?',
           icon: `${import.meta.env.BASE_URL}icons/icon-192.png`,
         });
         localStorage.setItem(KEY, todayStr());

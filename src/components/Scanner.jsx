@@ -132,7 +132,7 @@ export default function Scanner({ open, onClose, onFound, onNotFound }) {
   }
 
   return (
-    <Sheet open={open} onClose={onClose} title="Appraise by Barcode">
+    <Sheet open={open} onClose={onClose} title="Scan Barcode">
       <div className="space-y-4">
         {status !== 'insecure' && (
           <div className="relative rounded-xl overflow-hidden bg-black aspect-[4/3]">
@@ -154,12 +154,12 @@ export default function Scanner({ open, onClose, onFound, onNotFound }) {
             </div>
             {status === 'starting' && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-                <Spinner label="Summoning the camera…" />
+                <Spinner label="Starting camera…" />
               </div>
             )}
             {status === 'looking-up' && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-                <Spinner label="Consulting the codex…" />
+                <Spinner label="Looking up…" />
               </div>
             )}
             <button

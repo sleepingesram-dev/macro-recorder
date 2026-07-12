@@ -73,7 +73,7 @@ export default function LogFood() {
       } catch (e) {
         if (e.name !== 'AbortError') {
           setApiResults([]);
-          setApiErrors(['Search failed — are you offline? Your local codex still works.']);
+          setApiErrors(['Search failed — are you offline? Saved foods still work.']);
         }
       }
       setSearching(false);
@@ -97,7 +97,7 @@ export default function LogFood() {
     <div className="space-y-4 pb-4">
       <header className="flex items-center justify-between pt-2">
         <div>
-          <h1 className="font-display text-lg text-gold tracking-wide">Log Provisions</h1>
+          <h1 className="font-display text-[13px] leading-relaxed pixel-title">ADD FOOD</h1>
           <p className="text-[11px] text-ink-3 mt-0.5">
             {date === todayStr() ? 'Today' : date} · {settings.meals.find((m) => m.key === meal)?.label}
           </p>
@@ -112,7 +112,7 @@ export default function LogFood() {
         <div className="relative flex-1">
           <input
             className="input !py-2.5 pr-8"
-            placeholder="Search all known provisions…"
+            placeholder="Search foods…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
@@ -132,13 +132,13 @@ export default function LogFood() {
       <div className="grid grid-cols-3 gap-2">
         <ActionTile icon="✧" label="Quick Add" onClick={() => setSheet('quick')} />
         <ActionTile icon="📜" label="Custom Food" onClick={() => setSheet('custom')} />
-        <ActionTile icon="⚗" label="Forge Recipe" onClick={() => setSheet('recipe')} />
+        <ActionTile icon="⚗" label="New Recipe" onClick={() => setSheet('recipe')} />
       </div>
 
       {/* search results */}
       {!showBrowse && (
         <div>
-          <SectionTitle>Findings</SectionTitle>
+          <SectionTitle>Results</SectionTitle>
           {merged.length > 0 && (
             <div className="card divide-y divide-rune/40">
               {merged.map((f) => (
@@ -146,10 +146,10 @@ export default function LogFood() {
               ))}
             </div>
           )}
-          {searching && <Spinner label="Searching the realms…" />}
+          {searching && <Spinner label="Searching…" />}
           {!searching && merged.length === 0 && (
             <EmptyState icon="∅" title="Nothing found">
-              Try another name, scan the barcode, or inscribe it as a custom food.
+              Try a different name, scan the barcode, or add it as a custom food.
             </EmptyState>
           )}
           {apiErrors.length > 0 && !searching && (
@@ -161,10 +161,10 @@ export default function LogFood() {
       {/* browse sections */}
       {showBrowse && (
         <>
-          <FoodSection title="Recently Logged" foods={recents} onPick={setPicked} />
-          <FoodSection title="Frequent Provisions" foods={frequents} onPick={setPicked} />
-          <FoodSection title="My Codex" foods={myFoods} onPick={setPicked} empty="Custom foods you inscribe will gather here." />
-          <FoodSection title="Recipes" foods={recipes} onPick={setPicked} empty="Forged recipes will gather here." />
+          <FoodSection title="Recent" foods={recents} onPick={setPicked} />
+          <FoodSection title="Frequent" foods={frequents} onPick={setPicked} />
+          <FoodSection title="My Foods" foods={myFoods} onPick={setPicked} empty="Your custom foods will show up here." />
+          <FoodSection title="Recipes" foods={recipes} onPick={setPicked} empty="Your recipes will show up here." />
         </>
       )}
 
@@ -176,7 +176,7 @@ export default function LogFood() {
           food={picked}
           date={date}
           meal={meal}
-          onDone={() => flash('Inscribed ✓')}
+          onDone={() => flash('Added ✓')}
         />
       )}
       <Scanner
@@ -186,7 +186,7 @@ export default function LogFood() {
         onNotFound={(code) => {
           setNotFoundBarcode(code);
           setSheet('custom');
-          flash('Not in the codex — inscribe it below');
+          flash('Not found — add it as a custom food');
         }}
       />
       {sheet === 'custom' && (
@@ -208,7 +208,7 @@ export default function LogFood() {
         onClose={() => setSheet(null)}
         date={date}
         meal={meal}
-        onDone={() => flash('Inscribed ✓')}
+        onDone={() => flash('Added ✓')}
       />
 
       <AnimatePresence>
@@ -219,7 +219,7 @@ export default function LogFood() {
             exit={{ opacity: 0 }}
             className="fixed bottom-24 inset-x-0 flex justify-center z-50 pointer-events-none"
           >
-            <span className="bg-surface-2 border border-gold/40 text-gold-bright text-xs px-4 py-2 rounded-full shadow-glow">
+            <span className="bg-surface-2 border-2 border-gold/60 text-gold-bright text-xs px-4 py-2 pixel-corners shadow-glow">
               {toast}
             </span>
           </motion.div>
@@ -321,7 +321,7 @@ function QuickAddSheet({ open, onClose, date, meal, onDone }) {
     <Sheet open={open} onClose={onClose} title="Quick Add">
       <div className="space-y-4">
         <Field label="Name (optional)">
-          <input className="input" value={vals.name} onChange={set('name')} placeholder="Tavern meal" />
+          <input className="input" value={vals.name} onChange={set('name')} placeholder="Takeout" />
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Calories">
@@ -346,7 +346,7 @@ function QuickAddSheet({ open, onClose, date, meal, onDone }) {
           />
         </Field>
         <button className="btn-gold w-full" onClick={save}>
-          Inscribe Entry
+          Add
         </button>
       </div>
     </Sheet>

@@ -24,8 +24,8 @@ export default function Progress() {
   return (
     <div className="space-y-4 pb-4">
       <header className="pt-2">
-        <h1 className="font-display text-lg text-gold tracking-wide">The Long Road</h1>
-        <p className="text-[11px] text-ink-3 mt-0.5">Weight, trend & the Metabolic Codex</p>
+        <h1 className="font-display text-[13px] leading-relaxed pixel-title">PROGRESS</h1>
+        <p className="text-[11px] text-ink-3 mt-0.5">Weight trend & energy expenditure</p>
       </header>
 
       {/* ── Weight trend ── */}
@@ -56,8 +56,8 @@ export default function Progress() {
             </div>
           </>
         ) : (
-          <EmptyState icon="⚖" title="The road needs footprints">
-            Record weigh-ins from the Chronicle screen — two or more reveal the trend.
+          <EmptyState icon="⚖" title="No weigh-ins yet">
+            Log weigh-ins from the Home screen — two or more show your trend.
           </EmptyState>
         )}
         {rateDisp != null && (
@@ -71,18 +71,18 @@ export default function Progress() {
         )}
       </div>
 
-      {/* ── Metabolic Codex ── */}
+      {/* ── Estimated TDEE ── */}
       <div className="card ornate p-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="label">Metabolic Codex</p>
-            <p className="font-mono text-2xl text-ink">{fmt.kcal(info.codex.tdee)} <span className="text-xs text-ink-2">kcal/day</span></p>
+            <p className="label">Estimated TDEE</p>
+            <p className="font-mono text-3xl leading-none text-ink">{fmt.kcal(info.codex.tdee)} <span className="text-xs text-ink-2">kcal/day</span></p>
           </div>
           <ConfidenceRune confidence={info.codex.confidence} score={info.codex.confidenceScore} />
         </div>
         <p className="text-[11px] text-ink-3 mt-2">
           {info.codex.confidence === 'none'
-            ? `Formula baseline (${settings.formula}). Log meals and weigh-ins for ~2 weeks and the Codex learns your true expenditure.`
+            ? `Formula baseline (${settings.formula}). Log meals and weigh-ins for ~2 weeks and it learns your real burn rate.`
             : `Learned from ${info.codex.daysLogged} logged days across ${info.codex.windowDays} days of weight trend.`}
         </p>
         {info.codex.math && (
@@ -102,7 +102,7 @@ export default function Progress() {
       <SectionTitle
         right={
           <button className="text-[11px] text-gold-dim hover:text-gold" onClick={() => setMeasureOpen(true)}>
-            + Record
+            + Add
           </button>
         }
       >
@@ -113,8 +113,8 @@ export default function Progress() {
       {/* ── Estimated body fat ── */}
       <BodyFatCard info={info} />
 
-      {/* ── Progress photos ── */}
-      <SectionTitle>Likenesses</SectionTitle>
+      {/* ── Photos ── */}
+      <SectionTitle>Progress Photos</SectionTitle>
       <PhotoGrid />
 
       <MeasureSheet open={measureOpen} onClose={() => setMeasureOpen(false)} />
@@ -124,10 +124,10 @@ export default function Progress() {
 
 function ConfidenceRune({ confidence, score }) {
   const map = {
-    none: { color: '#575047', label: 'no data' },
-    low: { color: '#C4622D', label: 'low' },
-    moderate: { color: '#C9A84C', label: 'moderate' },
-    high: { color: '#4A7C59', label: 'high' },
+    none: { color: '#6A72A5', label: 'no data' },
+    low: { color: '#E08850', label: 'low' },
+    moderate: { color: '#FFD76E', label: 'moderate' },
+    high: { color: '#6ABE30', label: 'high' },
   };
   const m = map[confidence] || map.none;
   return (
@@ -149,7 +149,7 @@ function CodexMath({ math }) {
     </div>
   );
   return (
-    <div className="mt-2 text-[11px] bg-surface-2 rounded-lg p-3">
+    <div className="mt-2 text-[11px] bg-abyss/50 border border-rune p-3">
       <Row k="Window" v={`${fmtShort(math.windowStart)} → ${fmtShort(math.windowEnd)} (${math.windowDays}d)`} />
       <Row k="Days logged / weigh-ins" v={`${math.daysLogged} / ${math.weighIns}`} />
       <Row k="Avg intake" v={`${math.avgIntake.toLocaleString()} kcal`} />
@@ -173,8 +173,8 @@ function RationCard({ info, unit }) {
     <div className="card p-4">
       <div className="flex items-start justify-between">
         <div>
-          <p className="label">Daily Ration</p>
-          <p className="font-mono text-2xl text-gold-bright">
+          <p className="label">Calorie Target</p>
+          <p className="font-mono text-3xl leading-none text-gold-bright">
             {fmt.kcal(t.calories)} <span className="text-xs text-ink-2">kcal</span>
           </p>
           <p className="text-[11px] text-ink-3 mt-1">
@@ -191,7 +191,7 @@ function RationCard({ info, unit }) {
                   : 'text-arcane-bright border-arcane/40 bg-arcane/10'
             }`}
           >
-            {c.verdict === 'hold' ? '✓ on course' : c.verdict === 'reduce' ? 'ease the ration' : 'raise the ration'}
+            {c.verdict === 'hold' ? '✓ on track' : c.verdict === 'reduce' ? 'eat less' : 'eat more'}
           </span>
         )}
       </div>
@@ -238,7 +238,7 @@ function MeasurementSection() {
   if (!rows || rows.length === 0)
     return (
       <EmptyState icon="📏" title="No measurements yet">
-        Waist, chest, arms — the tape tells truths the scale hides.
+        Waist, chest, arms — track what the scale can\u2019t show.
       </EmptyState>
     );
 
@@ -261,7 +261,7 @@ function MeasurementSection() {
             {series.length >= 2 ? (
               <HistoryLine data={series} dataKey="value" color={CHART.arcane} height={120} unit={unit} />
             ) : (
-              <p className="text-[11px] text-ink-3">One point so far — record again to draw the line.</p>
+              <p className="text-[11px] text-ink-3">One entry so far — add another to see the trend.</p>
             )}
           </div>
         );
@@ -283,9 +283,9 @@ function MeasureSheet({ open, onClose }) {
     onClose();
   }
   return (
-    <Sheet open={open} onClose={onClose} title="Record Measurement">
+    <Sheet open={open} onClose={onClose} title="Add Measurement">
       <div className="space-y-4">
-        <Field label="Site">
+        <Field label="Body part">
           <select className="input" value={type} onChange={(e) => setType(e.target.value)}>
             {MEASUREMENT_TYPES.map((t) => (
               <option key={t.key} value={t.key}>
@@ -298,7 +298,7 @@ function MeasureSheet({ open, onClose }) {
           <input className="input" type="number" inputMode="decimal" value={val} onChange={(e) => setVal(e.target.value)} autoFocus />
         </Field>
         <button className="btn-gold w-full" onClick={save}>
-          Record
+          Save
         </button>
       </div>
     </Sheet>
@@ -344,7 +344,7 @@ function BodyFatCard({ info }) {
         />
       </div>
       {value != null && isFinite(value) ? (
-        <p className="font-mono text-2xl text-ink">
+        <p className="font-mono text-3xl leading-none text-ink">
           {value.toFixed(1)}
           <span className="text-sm text-ink-2">%</span>
           <span className="text-[10px] text-ink-3 ml-2">estimate</span>
@@ -387,7 +387,7 @@ function PhotoGrid() {
       <div className="grid grid-cols-3 gap-2">
         <label className="card aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-rune-2 transition-colors">
           <span className="text-xl text-gold-dim">＋</span>
-          <span className="text-[10px] text-ink-3 mt-1">Add likeness</span>
+          <span className="text-[10px] text-ink-3 mt-1">Add photo</span>
           <input type="file" accept="image/*" className="hidden" onChange={addPhoto} />
         </label>
         {(photos || []).map((p) => (
@@ -410,7 +410,7 @@ function PhotoGrid() {
                 setViewing(null);
               }}
             >
-              Burn this likeness
+              Delete photo
             </button>
           </div>
         )}

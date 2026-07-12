@@ -5,15 +5,11 @@ import App from './App';
 import { SettingsProvider } from './state/SettingsContext';
 import './index.css';
 
-import '@fontsource/cinzel/400.css';
-import '@fontsource/cinzel/600.css';
-import '@fontsource/cinzel/700.css';
-import '@fontsource/inter/400.css';
-import '@fontsource/inter/500.css';
-import '@fontsource/inter/600.css';
-import '@fontsource/inter/700.css';
-import '@fontsource/dm-mono/400.css';
-import '@fontsource/dm-mono/500.css';
+import '@fontsource/press-start-2p/400.css';
+import '@fontsource/pixelify-sans/400.css';
+import '@fontsource/pixelify-sans/500.css';
+import '@fontsource/pixelify-sans/600.css';
+import '@fontsource/vt323/400.css';
 
 // HashRouter so the app also works when opened from a plain static file server
 // with no SPA rewrite rules.

@@ -1,7 +1,7 @@
 # The Chronicle — a private macro & nutrition codex
 
-A local-first, subscription-free nutrition tracker in the spirit of MacroFactor, with its own
-RPG-minimal identity. Everything runs in your browser and stays on your device: no backend, no
+A local-first, subscription-free nutrition tracker in the spirit of MacroFactor, with a
+Terraria-style game UI. Everything runs in your browser and stays on your device: no backend, no
 account, no fees. Your data is yours — export it any time.
 
 ![The Chronicle](public/icons/emblem.svg)
@@ -42,7 +42,7 @@ account, no fees. Your data is yours — export it any time.
   calorie history, macro composition, calories by meal, micronutrients
   (fiber, sugar, sodium, potassium, cholesterol, vitamins…), estimated glycemic load,
   most-logged foods, protein per lb of bodyweight
-- **Feats** — RPG achievements ("Iron Discipline", "The Consistent"), streaks, XP and levels
+- **Feats** — game-style achievements ("First Bite!", "Iron Discipline"), streaks, XP and levels
 
 **Your data**
 - Stored in IndexedDB on your device; settings in localStorage
@@ -85,8 +85,8 @@ on your computer and open your computer's address from the phone), then "Add to 
 
 ## Stack
 
-React 18 · Vite · Tailwind (custom RPG token system) · Dexie (IndexedDB) · Recharts ·
-Framer Motion · ZXing · vite-plugin-pwa. Fonts (Cinzel / Inter / DM Mono) ship with the app —
+React 18 · Vite · Tailwind (custom Terraria-style token system) · Dexie (IndexedDB) · Recharts ·
+Framer Motion · ZXing · vite-plugin-pwa. Fonts (Press Start 2P / Pixelify Sans / VT323) ship with the app —
 no external requests except the two food databases.
 
 Design tokens and the validated chart palette are documented in [`docs/DESIGN.md`](docs/DESIGN.md).
