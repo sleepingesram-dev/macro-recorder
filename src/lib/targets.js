@@ -6,10 +6,10 @@ import { weekdayIndex } from './dates';
 export const KCAL_PER_G = { protein: 4, carbs: 4, fat: 9 };
 
 export const OBJECTIVES = [
-  { key: 'cut', label: 'Fat Loss', hint: 'Endurance Tax — sustainable deficit' },
-  { key: 'gain', label: 'Muscle Gain', hint: 'Growth Tithe — controlled surplus' },
+  { key: 'cut', label: 'Fat Loss', hint: 'Sustainable calorie deficit' },
+  { key: 'gain', label: 'Muscle Gain', hint: 'Controlled calorie surplus' },
   { key: 'recomp', label: 'Recomposition', hint: 'Hold near maintenance, high protein' },
-  { key: 'maintain', label: 'Maintenance', hint: 'Guard the line' },
+  { key: 'maintain', label: 'Maintenance', hint: 'Keep your current weight' },
 ];
 
 // The signed weekly rate the objective actually implies. rateKgPerWeek may

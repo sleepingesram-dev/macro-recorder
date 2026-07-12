@@ -35,21 +35,21 @@ export default function Analytics() {
     <div className="space-y-4 pb-4">
       <header className="pt-2 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-lg text-gold tracking-wide">The Codex</h1>
-          <p className="text-[11px] text-ink-3 mt-0.5">Deep records of the chronicle</p>
+          <h1 className="font-display text-[13px] leading-relaxed pixel-title">STATS</h1>
+          <p className="text-[11px] text-ink-3 mt-0.5">Your data over time</p>
         </div>
         <Segmented options={RANGES} value={range} onChange={setRange} />
       </header>
 
       {(!entries || entries.length === 0) && (
-        <EmptyState icon="🕮" title="These pages are blank">
-          Log provisions and the Codex will fill itself with insight.
+        <EmptyState icon="🕮" title="No data yet">
+          Start logging and your stats will appear here.
         </EmptyState>
       )}
 
       {entries && entries.length > 0 && (
         <>
-          {/* ── Weekly Ledger ── */}
+          {/* ── Weekly Summary ── */}
           <WeeklyLedger info={info} settings={settings} />
 
           {/* ── Averages vs targets ── */}
@@ -87,7 +87,7 @@ export default function Analytics() {
 
           {/* ── Calories by meal ── */}
           <div className="card p-4">
-            <p className="label">Ration by Meal · avg kcal</p>
+            <p className="label">Calories by Meal · daily avg</p>
             <MealDistribution data={stats.mealDist} />
             <div className="grid grid-cols-2 gap-1 mt-2">
               {stats.mealDist.map((m) => (
@@ -100,7 +100,7 @@ export default function Analytics() {
 
           {/* ── Micronutrients ── */}
           <div className="card p-4">
-            <p className="label">Deeper Nutrients · daily average</p>
+            <p className="label">Micronutrients · daily average</p>
             <div className="grid grid-cols-2 gap-x-6">
               {NUTRIENTS.filter((n) => !['kcal', 'protein', 'carbs', 'fat'].includes(n.key)).map((n) => (
                 <div key={n.key} className="flex justify-between py-1.5 border-b border-rune/40 text-xs">
@@ -119,7 +119,7 @@ export default function Analytics() {
 
           {/* ── Most logged foods ── */}
           <div className="card p-4">
-            <p className="label">Most Inscribed Provisions</p>
+            <p className="label">Most Logged Foods</p>
             {stats.topFoods.length === 0 ? (
               <p className="text-xs text-ink-3">Nothing yet.</p>
             ) : (
@@ -137,8 +137,8 @@ export default function Analytics() {
         </>
       )}
 
-      {/* ── Feats ── */}
-      <SectionTitle>Feats of the Chronicler</SectionTitle>
+      {/* ── Achievements ── */}
+      <SectionTitle>Achievements</SectionTitle>
       <div className="card p-4">
         <div className="flex items-center justify-between mb-3">
           <p className="text-xs text-ink-2">
@@ -246,7 +246,7 @@ function WeeklyLedger({ info, settings }) {
 
   return (
     <div className="card ornate p-4">
-      <p className="label">Weekly Ledger · {fmtShort(weekStart)} → {fmtShort(todayStr())}</p>
+      <p className="label">Weekly Summary · {fmtShort(weekStart)} → {fmtShort(todayStr())}</p>
       <div className="grid grid-cols-2 gap-y-3 mt-2">
         <Ledger k="Avg calories" v={avgKcal != null ? `${fmt.kcal(avgKcal)} kcal` : '—'} />
         <Ledger k="Days logged" v={`${byDate.size}/7`} />
@@ -263,11 +263,11 @@ function WeeklyLedger({ info, settings }) {
       {progress != null && (
         <div className="mt-3">
           <div className="flex justify-between text-[11px] text-ink-3 mb-1">
-            <span>Quest progress</span>
+            <span>Goal progress</span>
             <span className="font-mono">{Math.round(progress * 100)}%</span>
           </div>
-          <div className="w-full h-1.5 rounded-full bg-rune/60 overflow-hidden">
-            <div className="h-full bg-verdant-bright rounded-full" style={{ width: `${progress * 100}%` }} />
+          <div className="w-full h-2.5 bg-abyss/70 border border-rune overflow-hidden">
+            <div className="h-full bg-verdant-bright bar-stripes" style={{ width: `${progress * 100}%` }} />
           </div>
         </div>
       )}
@@ -279,7 +279,7 @@ function Ledger({ k, v }) {
   return (
     <div>
       <p className="text-[10px] uppercase tracking-wider text-ink-3">{k}</p>
-      <p className="font-mono text-sm text-ink mt-0.5">{v}</p>
+      <p className="font-mono text-xl leading-none text-ink mt-1">{v}</p>
     </div>
   );
 }

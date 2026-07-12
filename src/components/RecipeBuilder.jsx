@@ -75,12 +75,12 @@ export default function RecipeBuilder({ open, onClose, onSaved, initial }) {
   }
 
   return (
-    <Sheet open={open} onClose={onClose} title="Forge a Recipe" wide>
+    <Sheet open={open} onClose={onClose} title="New Recipe" wide>
       <div className="space-y-4">
         <div className="grid grid-cols-3 gap-3">
           <div className="col-span-2">
             <Field label="Recipe name">
-              <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Traveler's chili" />
+              <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Chili" />
             </Field>
           </div>
           <Field label="Servings">
@@ -93,7 +93,7 @@ export default function RecipeBuilder({ open, onClose, onSaved, initial }) {
             className="input"
             value={query}
             onChange={(e) => runSearch(e.target.value)}
-            placeholder="Search foods & codex…"
+            placeholder="Search foods…"
           />
         </Field>
         {searching && <Spinner label="Searching…" />}
@@ -109,7 +109,7 @@ export default function RecipeBuilder({ open, onClose, onSaved, initial }) {
                   {f.name}
                   {f.brand ? <span className="text-ink-3 text-xs"> · {f.brand}</span> : null}
                 </span>
-                <span className="font-mono text-[11px] text-ink-3 shrink-0">
+                <span className="font-mono text-sm text-ink-3 shrink-0 leading-none">
                   {fmt.kcal(f.per100?.kcal)} /100g
                 </span>
               </button>
@@ -157,7 +157,7 @@ export default function RecipeBuilder({ open, onClose, onSaved, initial }) {
         )}
 
         <button className="btn-gold w-full" onClick={save} disabled={!name.trim() || items.length === 0}>
-          Seal the Recipe
+          Save Recipe
         </button>
       </div>
     </Sheet>

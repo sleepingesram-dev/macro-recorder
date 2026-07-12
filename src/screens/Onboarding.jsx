@@ -85,8 +85,8 @@ export default function Onboarding() {
   const steps = [
     // ── Step 1: identity ──
     <div className="space-y-4" key="s0">
-      <Field label="Name your adventurer">
-        <input className="input" placeholder="Adventurer" value={form.name} onChange={set('name')} />
+      <Field label="Your name">
+        <input className="input" placeholder="Your name" value={form.name} onChange={set('name')} />
       </Field>
       <Field label="Units">
         <Segmented
@@ -125,7 +125,7 @@ export default function Onboarding() {
 
     // ── Step 2: the quest ──
     <div className="space-y-4" key="s1">
-      <Field label="Your quest">
+      <Field label="Your goal">
         <div className="grid grid-cols-2 gap-2">
           {OBJECTIVES.map((o) => (
             <button
@@ -151,7 +151,7 @@ export default function Onboarding() {
           </Field>
         </>
       )}
-      <Field label="Activity (starting point — the Codex adapts from real data)">
+      <Field label="Activity level (starting point — adapts from your real data)">
         <div className="space-y-1.5">
           {ACTIVITY_LEVELS.map((a) => (
             <button
@@ -178,41 +178,41 @@ export default function Onboarding() {
 
     // ── Step 3: the ration ──
     <div className="space-y-4 text-center" key="s2">
-      <p className="text-ink-2 text-sm">The Codex opens with these numbers. They will adapt as you log.</p>
+      <p className="text-ink-2 text-sm">Here\u2019s your starting plan. It adapts as you log.</p>
       <div className="card ornate p-6 space-y-3">
         <div>
-          <p className="label">Metabolic Codex (initial)</p>
-          <p className="font-mono text-2xl text-ink">{fmt.kcal(tdee)} kcal/day</p>
+          <p className="label">Estimated TDEE</p>
+          <p className="font-mono text-3xl leading-none text-ink">{fmt.kcal(tdee)} kcal/day</p>
         </div>
         <div className="divider-rune" />
         <div>
-          <p className="label">Daily Ration</p>
-          <p className="font-mono text-3xl text-gold-bright">{fmt.kcal(calories)} kcal</p>
+          <p className="label">Daily Calories</p>
+          <p className="font-mono text-4xl leading-none text-gold-bright">{fmt.kcal(calories)} kcal</p>
           {signedRate !== 0 && (
             <p className="text-[11px] text-ink-3 mt-1">
-              {signedRate < 0 ? 'Endurance Tax' : 'Growth Tithe'}: {fmt.kcal(Math.abs(calories - tdee))} kcal/day
+              {signedRate < 0 ? 'Deficit' : 'Surplus'}: {fmt.kcal(Math.abs(calories - tdee))} kcal/day
             </p>
           )}
         </div>
         {macros && (
           <div className="grid grid-cols-3 pt-2">
             <div>
-              <p className="font-mono text-lg text-chart-arcane">{macros.protein}g</p>
+              <p className="font-mono text-2xl leading-none text-chart-arcane">{macros.protein}g</p>
               <p className="text-[10px] text-ink-3 uppercase">Protein</p>
             </div>
             <div>
-              <p className="font-mono text-lg text-chart-verdant">{macros.carbs}g</p>
+              <p className="font-mono text-2xl leading-none text-chart-verdant">{macros.carbs}g</p>
               <p className="text-[10px] text-ink-3 uppercase">Carbs</p>
             </div>
             <div>
-              <p className="font-mono text-lg text-chart-ember">{macros.fat}g</p>
+              <p className="font-mono text-2xl leading-none text-chart-ember">{macros.fat}g</p>
               <p className="text-[10px] text-ink-3 uppercase">Fat</p>
             </div>
           </div>
         )}
       </div>
       <p className="text-[11px] text-ink-3">
-        Every number stays on this device. No account. No subscription. Your data, your chronicle.
+        Everything stays on this device. No account, no subscription.
       </p>
     </div>,
   ];
@@ -221,12 +221,12 @@ export default function Onboarding() {
     <div className="min-h-dvh max-w-md mx-auto px-5 py-10 flex flex-col">
       <header className="text-center mb-8">
         <p className="text-gold-dim text-2xl mb-2">✦</p>
-        <h1 className="font-display text-2xl text-gold tracking-[0.12em] uppercase">The Chronicle</h1>
-        <p className="text-xs text-ink-3 mt-2 tracking-wide">A private codex of rations, quests & progress</p>
+        <h1 className="font-display text-base leading-relaxed uppercase pixel-title">The Chronicle</h1>
+        <p className="text-xs text-ink-3 mt-2 tracking-wide">Track macros. Hit goals. No subscription.</p>
       </header>
       <div className="flex gap-1.5 justify-center mb-6">
         {steps.map((_, i) => (
-          <div key={i} className={`h-1 rounded-full transition-all ${i === step ? 'w-8 bg-gold' : 'w-4 bg-rune'}`} />
+          <div key={i} className={`h-1.5 transition-all ${i === step ? 'w-8 bg-gold-bright' : 'w-4 bg-surface-2'}`} />
         ))}
       </div>
       <AnimatePresence mode="wait">
@@ -253,7 +253,7 @@ export default function Onboarding() {
           </button>
         ) : (
           <button className="btn-gold flex-1" onClick={finish}>
-            Begin the Chronicle
+            Start Tracking
           </button>
         )}
       </div>

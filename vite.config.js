@@ -15,9 +15,9 @@ export default defineConfig({
         name: 'The Chronicle — Macro Codex',
         short_name: 'Chronicle',
         description:
-          'A private, local-first nutrition chronicle. Adaptive expenditure, barcode scanning, weight trends — no subscription, no account, yours.',
-        theme_color: '#0D0B0E',
-        background_color: '#0D0B0E',
+          'A private, local-first macro tracker. Adaptive TDEE, barcode scanning, weight trends — no subscription, no account, yours.',
+        theme_color: '#0B0D21',
+        background_color: '#0B0D21',
         display: 'standalone',
         orientation: 'portrait',
         // relative so the app installs correctly from any base path

@@ -41,11 +41,11 @@ export default function CustomFoodSheet({ open, onClose, onSaved, initial }) {
   }
 
   return (
-    <Sheet open={open} onClose={onClose} title="Inscribe Custom Food" wide>
+    <Sheet open={open} onClose={onClose} title="New Custom Food" wide>
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <Field label="Name">
-            <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Hearty stew" />
+            <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Chicken bowl" />
           </Field>
           <Field label="Brand (optional)">
             <input className="input" value={brand} onChange={(e) => setBrand(e.target.value)} />
@@ -86,7 +86,7 @@ export default function CustomFoodSheet({ open, onClose, onSaved, initial }) {
           </div>
         )}
         <button className="btn-gold w-full" onClick={save} disabled={!name.trim()}>
-          Inscribe to Codex
+          Save Food
         </button>
       </div>
     </Sheet>

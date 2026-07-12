@@ -1,17 +1,17 @@
 import { NavLink } from 'react-router-dom';
 
 const TABS = [
-  { to: '/', label: 'Chronicle', icon: ChronicleIcon },
+  { to: '/', label: 'Home', icon: ChronicleIcon },
   { to: '/log', label: 'Log', icon: QuillIcon },
   { to: '/progress', label: 'Progress', icon: ScalesIcon },
-  { to: '/analytics', label: 'Codex', icon: TomeIcon },
+  { to: '/analytics', label: 'Stats', icon: TomeIcon },
   { to: '/settings', label: 'Settings', icon: GearIcon },
 ];
 
 export default function BottomNav() {
   return (
     <nav
-      className="fixed bottom-0 inset-x-0 z-40 bg-abyss/90 backdrop-blur border-t border-rune"
+      className="fixed bottom-0 inset-x-0 z-40 bg-abyss/95 backdrop-blur border-t-2 border-rune"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="max-w-2xl mx-auto grid grid-cols-5">
@@ -22,7 +22,7 @@ export default function BottomNav() {
             end={to === '/'}
             className={({ isActive }) =>
               `flex flex-col items-center gap-1 py-2.5 text-[10px] tracking-wide transition-colors ${
-                isActive ? 'text-gold' : 'text-ink-3 hover:text-ink-2'
+                isActive ? 'text-gold-bright' : 'text-ink-3 hover:text-ink-2'
               }`
             }
           >

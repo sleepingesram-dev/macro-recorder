@@ -25,30 +25,30 @@ export const CHART = {
   arcane: '#926BBC', // protein / secondary
   verdant: '#4E9E67', // carbs / tertiary
   ember: '#C36A1E', // fat / quaternary
-  grid: '#2A2535',
-  axis: '#8A8278',
-  raw: '#6B6478', // raw weigh-in dots — recessive next to the trend line
+  grid: '#323C7E',
+  axis: '#A9B0D6',
+  raw: '#7B84B8', // raw weigh-in dots — recessive next to the trend line
 };
 
 export const MACRO_COLORS = { protein: CHART.arcane, carbs: CHART.verdant, fat: CHART.ember };
 
 const tooltipStyle = {
   contentStyle: {
-    background: '#211D2A',
-    border: '1px solid #3A3348',
-    borderRadius: 8,
-    fontSize: 12,
-    fontFamily: '"DM Mono", monospace',
-    color: '#E8E4DE',
+    background: '#2C3572',
+    border: '2px solid #0D0F26',
+    borderRadius: 0,
+    fontSize: 15,
+    fontFamily: 'VT323, monospace',
+    color: '#F2F3FA',
   },
-  labelStyle: { color: '#8A8278', marginBottom: 4 },
-  itemStyle: { color: '#E8E4DE', padding: 0 },
-  cursor: { stroke: '#3A3348', strokeWidth: 1 },
+  labelStyle: { color: '#A9B0D6', marginBottom: 4 },
+  itemStyle: { color: '#F2F3FA', padding: 0 },
+  cursor: { stroke: '#4A55A0', strokeWidth: 1 },
 };
 
 const axisProps = {
   stroke: 'transparent',
-  tick: { fill: CHART.axis, fontSize: 11, fontFamily: '"DM Mono", monospace' },
+  tick: { fill: CHART.axis, fontSize: 14, fontFamily: 'VT323, monospace' },
   tickLine: false,
   axisLine: false,
 };
@@ -99,7 +99,7 @@ export function WeightChart({ series, unit = 'kg', toDisplay = (v) => v, height 
 
 function Dot({ cx, cy, r = 3.5, fill }) {
   if (cx == null || cy == null) return null;
-  return <circle cx={cx} cy={cy} r={r} fill={fill || CHART.raw} stroke="#1A1720" strokeWidth={1.5} />;
+  return <circle cx={cx} cy={cy} r={r} fill={fill || CHART.raw} stroke="#232A5C" strokeWidth={1.5} />;
 }
 
 // ── Generic single-series history line ──
@@ -141,7 +141,7 @@ export function MacroPie({ protein = 0, carbs = 0, fat = 0, size = 170 }) {
   ];
   const total = data.reduce((a, b) => a + b.value, 0);
   if (total <= 0)
-    return <p className="text-xs text-ink-3 text-center py-8">Nothing logged yet — the pie awaits.</p>;
+    return <p className="text-xs text-ink-3 text-center py-8">Nothing logged yet.</p>;
   return (
     <ResponsiveContainer width="100%" height={size}>
       <PieChart>
@@ -152,7 +152,7 @@ export function MacroPie({ protein = 0, carbs = 0, fat = 0, size = 170 }) {
           innerRadius="58%"
           outerRadius="88%"
           paddingAngle={2}
-          stroke="#1A1720"
+          stroke="#232A5C"
           strokeWidth={2}
           isAnimationActive={false}
         >
@@ -167,7 +167,7 @@ export function MacroPie({ protein = 0, carbs = 0, fat = 0, size = 170 }) {
         <Legend
           iconType="circle"
           iconSize={8}
-          formatter={(v) => <span style={{ color: '#8A8278', fontSize: 12 }}>{v}</span>}
+          formatter={(v) => <span style={{ color: '#A9B0D6', fontSize: 13 }}>{v}</span>}
         />
       </PieChart>
     </ResponsiveContainer>
@@ -197,9 +197,9 @@ export function AvgVsTargetBars({ rows }) {
                 )}
               </span>
             </div>
-            <div className="w-full h-2 rounded-full bg-rune/60 overflow-hidden">
+            <div className="w-full h-2.5 bg-abyss/70 border border-rune overflow-hidden">
               <div
-                className="h-full rounded-full"
+                className="h-full bar-stripes"
                 style={{ width: `${Math.min(100, pct * 100)}%`, background: r.color }}
               />
             </div>
